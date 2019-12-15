@@ -1,12 +1,13 @@
 from scipy.optimize import fsolve
 import numpy as np
 import matplotlib.pyplot as plt
+plt.xkcd()
 
 def f(x):# {{{
     #  x^2 + y^2 = 25
     #  y = 2*x + 5
-    f0=     x[0]**2 + x[1]**2 - 25
-    f1=     x[0]*2  - x[1]    + 5
+    f0 = x[0]**2 + x[1]**2 - 25
+    f1 = x[0]*2  - x[1]    + 5
     return [f0,f1]
 # }}}
 def main():# {{{
@@ -15,6 +16,7 @@ def main():# {{{
     y=np.linspace(-N,N)
     X,Y=np.meshgrid(x,y)
     res=np.round(fsolve(f,[-100,100]))
+    print(res)
 
     Z0 = X**2 + Y**2 - 25
     Z1 = x*2 + 5
