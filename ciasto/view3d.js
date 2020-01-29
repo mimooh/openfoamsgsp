@@ -1,5 +1,9 @@
-var scene, camera, renderer, controls, fireMesh;
-var win=[ $(window).width()-30, $(window).height()-50];
+var scene, camera, renderer, controls, fireMesh, rings;
+
+var SPEED = 0.01;
+var WIDTH  = window.innerWidth;
+var HEIGHT = window.innerHeight;
+$(function()  { view3d(); });
 
 function removeMeshes() { //{{{
 	while (scene.children.length > 0){ 
@@ -7,75 +11,47 @@ function removeMeshes() { //{{{
 	}
 }
 //}}}
+
 function createScene() { //{{{
 	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setClearColor(0x444444);
-	renderer.setSize(win[0], win[1]);
-	$('view3d').append(renderer.domElement);
-
-	camera = new THREE.OrthographicCamera(win[0]/-50, win[0]/50, win[1]/50, win[1]/-50, 1, 1000);
-	camera.position.set(200, 100, -200);
-	
-	controls = new THREE.OrbitControls( camera, renderer.domElement );
-
+	renderer.setSize(WIDTH, HEIGHT);
+	$('body').append(renderer.domElement);
 	scene = new THREE.Scene();
+
+    //camera = new THREE.PerspectiveCamera(70, WIDTH/HEIGHT, 1, 10);
+	camera = new THREE.OrthographicCamera(WIDTH/-50, WIDTH/50, HEIGHT/50, HEIGHT/-50, 1, 100);
+
+    camera.position.set(0, 0, 10 );
+    camera.lookAt(scene.position);
+	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	scene.add(new THREE.AxesHelper());
+
+    //cube = new THREE.Mesh(new THREE.CubeGeometry(2, 2, 2), new THREE.MeshNormalMaterial());
+    //scene.add(cube);
 }
 //}}}
-function polyGeometry(geom) {//{{{
-	// random prevents z-fighting
-	var random=Math.random()/100;
-	var extrudeSettings = { steps: 1, depth: (geom.z[1]-geom.z[0])/100+random, bevelEnabled: false };
-	var shape = new THREE.Shape();
-	var o=geom.polypoints[0];
-	shape.moveTo(-o[0]/100+random, o[1]/100+random);
-	_.each(geom.polypoints, function(p) {
-		shape.lineTo(-p[0]/100+random, p[1]/100+random);
-	});
-	shape.lineTo(-o[0]/100+random, o[1]/100+random);
-	var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings );
-	geometry.translate(0, random, geom.z[0]/100+random);
-	geometry.rotateX(THREE.Math.degToRad(270));
-	if(geom.type!='fire') { scene.add(new THREE.LineSegments(new THREE.EdgesGeometry( geometry ), new THREE.LineBasicMaterial( { color: gg[geom.letter].c }))); }
-	return geometry;
-}
-//}}}
-function createSphere() {//{{{
-	var geometry = new THREE.SphereGeometry( 1, 10, 10 );
-	var material = new THREE.MeshBasicMaterial( {color: 0xff0000 } );
+function createSphere(x,y,color) {//{{{
+	var geometry = new THREE.SphereGeometry(0.1, 20, 20 );
+	var material = new THREE.MeshBasicMaterial( {color: color } );
 	var sphere = new THREE.Mesh( geometry, material );
+	geometry.translate(x, y, 0)
 	scene.add(sphere);
 }
 //}}}
-function createWireFrame(geom) {//{{{
-	polyGeometry(geom);
-}
-//}}}
-function createBlock(geom, alpha=0) {//{{{
-	if (alpha==0) { var transparent=true; } else { var transparent=false; }
-	if(geom.letter=='c') { geom.z[1]+=1; }
-	var material = new THREE.MeshBasicMaterial({
-		color: gg[geom.letter].c,
-		opacity: 0.4,
-		//side: THREE.DoubleSide,
-		transparent: transparent
-	});
-	var geometry=polyGeometry(geom);
-	var mesh = new THREE.Mesh( geometry, material );
-	if(geom.type=='fire') { fireMesh=mesh; }
-	scene.add(mesh) ;
+
+function rotateCube() {//{{{
+    cube.rotation.x -= SPEED * 2;
+    cube.rotation.y -= SPEED;
+    cube.rotation.z -= SPEED * 3;
 }
 //}}}
 
 function view3d() {//{{{
 	if(scene === undefined) {
-		$.getScript("three.r109.min.js", function(){
-			$.getScript("OrbitControls.js", function(){
-				createScene();
-				createMeshes(); 
-				animate();
-			});
-		});
+		createScene();
+		createMeshes(); 
+		animate();
 	} else {
 		removeMeshes();
 		createMeshes(); 
@@ -84,32 +60,36 @@ function view3d() {//{{{
 }
 
 //}}}
+function moveDots() {//{{{
+	_.each(rings, function(x) {
+		console.log(x);
+	});
+
+}
+//}}}
 function animate() {//{{{
 	requestAnimationFrame(animate);
 	//if(fireMesh!=undefined) { animFire(); }
 	controls.update();
+	moveDots();
+    //rotateCube();
 	renderer.render( scene, camera );
 }
 //}}}
-function createCircle(radius, translate) { //{{{
-	var geometry = new THREE.CircleGeometry(radius, 12 );
-	var color = new THREE.Color( 0xffffff );
-	color=color.setHex( Math.random() * 0xffffff );
-
-	var material = new THREE.MeshBasicMaterial( { opacity: 0.5, color: color, transparent: 1, side: THREE.DoubleSide } );
-	var circle = new THREE.Mesh( geometry, material );
-
-	geometry.translate(0, 0, translate)
-
-	scene.add(circle);
-}
-//}}}
 function createMeshes() {//{{{
-	var count=20;
-    for (var i=1; i<count; i++) { 
-		createCircle(count-i, 0.1*i);
+	rings=[];
+	for (var r=2; r<=2; r++) { 
+		rings[r]=[];
+		var count=r*10;
+		var color = new THREE.Color( 0xffffff );
+		color=color.setHex( Math.random() * 0xffffff );
+		for (var i=0; i<count; i++) { 
+			var x = r * Math.cos(i * 2*Math.PI / count);
+			var y = r * Math.sin(i * 2*Math.PI / count);
+			rings[r].push([x,y]);
+			createSphere(x, y, color); 
+		}
 	}
-
 }
 //}}}
-view3d();
+
