@@ -1,4 +1,6 @@
-var scene, camera, renderer, controls, fireMesh, rings;
+
+var scene, camera, renderer, controls, fireMesh, rings, particles, spheres=[], frame=1;
+var t = 0, dt = 0.001;                   // t (dt delta for demo)
 
 var SPEED = 0.01;
 var WIDTH  = window.innerWidth;
@@ -26,50 +28,48 @@ function createScene() { //{{{
     camera.lookAt(scene.position);
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	scene.add(new THREE.AxesHelper());
-
-    //cube = new THREE.Mesh(new THREE.CubeGeometry(2, 2, 2), new THREE.MeshNormalMaterial());
-    //scene.add(cube);
 }
 //}}}
 function createSphere(x,y,color) {//{{{
 	var geometry = new THREE.SphereGeometry(0.1, 20, 20 );
 	var material = new THREE.MeshBasicMaterial( {color: color } );
 	var sphere = new THREE.Mesh( geometry, material );
-	geometry.translate(x, y, 0)
+	sphere.position.x=x;
+	sphere.position.y=y;
+	sphere.position.z=0;
+	spheres.push(sphere);
 	scene.add(sphere);
 }
 //}}}
 
-function rotateCube() {//{{{
-    cube.rotation.x -= SPEED * 2;
-    cube.rotation.y -= SPEED;
-    cube.rotation.z -= SPEED * 3;
-}
-//}}}
-
 function view3d() {//{{{
-	if(scene === undefined) {
+	$.getJSON( "ciasto.json", function( dots) { 
+		particles=dots;
 		createScene();
 		createMeshes(); 
-		animate();
-	} else {
-		removeMeshes();
-		createMeshes(); 
-		animate();
-	}
+		loop();
+	});
 }
 
 //}}}
 function moveDots() {//{{{
-	_.each(rings, function(x) {
-		console.log(x);
-	});
 
 }
 //}}}
-function animate() {//{{{
-	requestAnimationFrame(animate);
-	//if(fireMesh!=undefined) { animFire(); }
+function loop() {//{{{
+	for (var i=0; i<spheres.length; i++) {
+		var newX = lerp(spheres[i].position.x, particles[frame+1][i][0], ease(t));   // interpolate between a and b where
+		var newY = lerp(spheres[i].position.y, particles[frame+1][i][1], ease(t));   // interpolate between a and b where
+		spheres[i].position.set(newX, newY, 0);
+		//spheres[i].position.y = particles[frame+1][i][1];
+	}
+	console.log(t);
+	t += dt;
+	if (t <= 0 || t >=1) dt = -dt;        // ping-pong for demo
+
+	if(frame<particles.length-2) { frame++; } else { frame=1; }
+
+	requestAnimationFrame(loop);
 	controls.update();
 	moveDots();
     //rotateCube();
@@ -77,19 +77,17 @@ function animate() {//{{{
 }
 //}}}
 function createMeshes() {//{{{
-	rings=[];
-	for (var r=2; r<=2; r++) { 
-		rings[r]=[];
-		var count=r*10;
-		var color = new THREE.Color( 0xffffff );
-		color=color.setHex( Math.random() * 0xffffff );
-		for (var i=0; i<count; i++) { 
-			var x = r * Math.cos(i * 2*Math.PI / count);
-			var y = r * Math.sin(i * 2*Math.PI / count);
-			rings[r].push([x,y]);
-			createSphere(x, y, color); 
-		}
+	var color = new THREE.Color( 0xffffff );
+	color=color.setHex( Math.random() * 0xffffff );
+	for (var i=0; i<particles[0].length; i++) { 
+		createSphere(particles[0][i][0], particles[0][i][1], color); 
 	}
+	//}
 }
 //}}}
+function lerp(a, b, t) {return a + (b - a) * t}
+    
+// example easing function (quadInOut, see link above)
+function ease(t) { return t<0.5 ? 2*t*t : -1+(4-2*t)*t}
+
 

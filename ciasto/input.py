@@ -1,5 +1,7 @@
 from collections import OrderedDict
-from math import sqrt, sin, cos, asin, acos, pi, degrees
+import math
+from copy import deepcopy
+#from math import sqrt, sin, cos, asin, acos, atan, pi, degrees
 from numpy.random import randint
 import matplotlib.pyplot as plt
 import inspect
@@ -57,59 +59,54 @@ class Json: # {{{
 
 class Gen:
     def __init__(self):# {{{
-        self.rings0={}
-        self.num_frames=20
-        self.v_scaler=0.1
-        self.init_frames()
-        self.speed=1
-        self.times=np.arange(1,3,0.01)
-        for r in range(1,2):
-            self.rings0[r]=[]
-            self.init_ring(r)
-            self.ring_frames(r)
-        #dd(self.frames[0])
+        self.rings={}
+        self.num_frames=500;
+        for r in range(1,4):
+            self.rings[r]=self.make_polygon(r)
+        self.ring_frames()
 # }}}
-    def init_frames(self):# {{{
-        self.frames={}
-        for i in range(self.num_frames):
-            self.frames[i]=[]
+    def plot_rings(self):# {{{
+        dots=[ [], [] ]
+        for r,v in self.rings.items():
+            for i in v:
+                dots[0].append(i[0])
+                dots[1].append(i[1])
+        plt.scatter(dots[0], dots[1])
+        plt.show()
         
 # }}}
-    def velocity(self, x, r):# {{{
-        alpha=acos(max(1,x)/r)
-        return [ self.v_scaler * sin(alpha), self.v_scaler * cos(alpha) ]
+    def make_polygon(self,radius):# {{{
+        sides=radius*10
+        one_segment = math.pi * 2 / sides
+        points = [
+            (math.sin(one_segment * i) * radius,
+             math.cos(one_segment * i) * radius)
+            for i in range(sides)]
+        return points
 # }}}
-    def ring_frames(self, r):# {{{
-        #self.frames[0].append({r: self.rings0[r]})
-        frames=[]
-        current=self.rings0[r]
-        frames.append(current)
-        for i in range(1,self.num_frames):
-            create_frame=[]
-            for x,y in current:
-                v=self.velocity(x,r)
-                #create_frame.append((x+v[0], y+v[1]))
-                create_frame.append((x, y))
-            current=create_frame
-            print(i, create_frame[0])
-            #frames.append(current)
-            #alpha=self.xy2alpha(i[0],r)
-            #v=[sin(alpha), cos(alpha)]
-            #print("alpha:{}, vx:{}, vy:{}".format(round(degrees(alpha)), v[0], v[1]))
-        #dd(frames)
-    # }}}
-    def init_ring(self, r):# {{{
-        count=r*50
-        x=[]
-        y=[]
-        for i in range(count):
-            alpha=i*2*pi/count
-            self.rings0[r].append((r*cos(alpha), r*sin(alpha)))
-        #dd(self.rings[r])
-        #p=list(zip(*self.rings[r][0]))
-        #plt.scatter(p[0], p[1])
-        #plt.show()
+    def ring_frames(self):# {{{
+        self.frames=[]
+        for frame in range(1,self.num_frames):
+            frame_record={}
+            for r in self.rings.keys(): 
+                try:
+                    new=deepcopy(self.frames[frame-2][r])
+                except:
+                    new=deepcopy(self.rings[r])
+                first=new.pop(0)
+                new.append(first)
+                frame_record[r]=new
+            self.frames.append(frame_record)
 
+        flat=[]
+        for f in self.frames:
+            record=[]
+            for m,n in f.items():
+                record+=n
+            flat.append(record)
+
+        j.write(flat, "ciasto.json")
+    # }}}
         
 # }}}
 
