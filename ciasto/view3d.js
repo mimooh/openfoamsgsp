@@ -1,11 +1,12 @@
-
-var scene, camera, renderer, controls, fireMesh, rings, particles, spheres=[], frame=1;
+var scene, camera, renderer, controls, fireMesh, rings, particles, spheres=[], frame=1, paused=0;
 var t = 0, dt = 0.001;                   // t (dt delta for demo)
 
 var SPEED = 0.01;
 var WIDTH  = window.innerWidth;
 var HEIGHT = window.innerHeight;
 $(function()  { view3d(); });
+
+$(this).keydown((e) => { if (e.key== 'a') { if(paused==1) { paused=0; loop(); } else { paused=1; } } });
 
 function removeMeshes() { //{{{
 	while (scene.children.length > 0){ 
@@ -52,26 +53,20 @@ function view3d() {//{{{
 }
 
 //}}}
-function moveDots() {//{{{
-
-}
-//}}}
 function loop() {//{{{
-	for (var i=0; i<spheres.length; i++) {
-		var newX = lerp(spheres[i].position.x, particles[frame+1][i][0], ease(t));   // interpolate between a and b where
-		var newY = lerp(spheres[i].position.y, particles[frame+1][i][1], ease(t));   // interpolate between a and b where
-		spheres[i].position.set(newX, newY, 0);
-		//spheres[i].position.y = particles[frame+1][i][1];
-	}
-	console.log(t);
-	t += dt;
-	if (t <= 0 || t >=1) dt = -dt;        // ping-pong for demo
-
-	if(frame<particles.length-2) { frame++; } else { frame=1; }
-
+    if(paused==1) { return; }
+    for (var i=0; i<spheres.length; i++) {
+        var newX = lerp(spheres[i].position.x, particles[frame+1][i][0], ease(t));   // interpolate between a and b where
+        var newY = lerp(spheres[i].position.y, particles[frame+1][i][1], ease(t));   // interpolate between a and b where
+        spheres[i].position.set(newX, newY, 0);
+        //spheres[i].position.y = particles[frame+1][i][1];
+    }
+    console.log(t);
+    t += dt;
+    if (t <= 0 || t >=1) dt = -dt;        // ping-pong for demo
+    if(frame<particles.length-2) { frame++; } else { frame=1; }
 	requestAnimationFrame(loop);
 	controls.update();
-	moveDots();
     //rotateCube();
 	renderer.render( scene, camera );
 }
