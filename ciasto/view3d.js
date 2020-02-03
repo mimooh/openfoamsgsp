@@ -1,5 +1,4 @@
 var scene, camera, renderer, controls, fireMesh, rings, particles, spheres=[], frame=1, paused=0;
-var t = 0, dt = 0.001;                   // t (dt delta for demo)
 
 var SPEED = 0.01;
 var WIDTH  = window.innerWidth;
@@ -21,18 +20,27 @@ function createScene() { //{{{
 	renderer.setSize(WIDTH, HEIGHT);
 	$('body').append(renderer.domElement);
 	scene = new THREE.Scene();
-
-    //camera = new THREE.PerspectiveCamera(70, WIDTH/HEIGHT, 1, 10);
-	camera = new THREE.OrthographicCamera(WIDTH/-50, WIDTH/50, HEIGHT/50, HEIGHT/-50, 1, 100);
-
+	camera = new THREE.OrthographicCamera(WIDTH/-200, WIDTH/200, HEIGHT/200, HEIGHT/-200, 1, 200);
     camera.position.set(0, 0, 10 );
     camera.lookAt(scene.position);
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	scene.add(new THREE.AxesHelper());
 }
 //}}}
+function createTriangle(points) {//{{{
+	var material = new THREE.LineBasicMaterial({ color: 0xaaaaaa });
+
+	var geometry = new THREE.Geometry();
+	for (var i=0; i<points.length; i++) {
+		geometry.vertices.push( new THREE.Vector3( points[i][0], points[i][1], 0 ));
+	}
+	geometry.vertices.push( new THREE.Vector3(points[0][0], points[0][1], 0 ));
+	var line = new THREE.Line( geometry, material );
+	scene.add( line );
+}
+//}}}
 function createSphere(x,y,color) {//{{{
-	var geometry = new THREE.SphereGeometry(0.1, 20, 20 );
+	var geometry = new THREE.SphereGeometry(0.03, 20, 20 );
 	var material = new THREE.MeshBasicMaterial( {color: color } );
 	var sphere = new THREE.Mesh( geometry, material );
 	sphere.position.x=x;
@@ -55,34 +63,23 @@ function view3d() {//{{{
 //}}}
 function loop() {//{{{
     if(paused==1) { return; }
+
     for (var i=0; i<spheres.length; i++) {
-        var newX = lerp(spheres[i].position.x, particles[frame+1][i][0], ease(t));   // interpolate between a and b where
-        var newY = lerp(spheres[i].position.y, particles[frame+1][i][1], ease(t));   // interpolate between a and b where
-        spheres[i].position.set(newX, newY, 0);
-        //spheres[i].position.y = particles[frame+1][i][1];
+		spheres[i].position.lerp(new THREE.Vector3(particles[1][i][0], particles[1][i][1], 0 ), 0.1);
     }
-    console.log(t);
-    t += dt;
-    if (t <= 0 || t >=1) dt = -dt;        // ping-pong for demo
     if(frame<particles.length-2) { frame++; } else { frame=1; }
 	requestAnimationFrame(loop);
 	controls.update();
-    //rotateCube();
 	renderer.render( scene, camera );
 }
 //}}}
 function createMeshes() {//{{{
 	var color = new THREE.Color( 0xffffff );
 	color=color.setHex( Math.random() * 0xffffff );
+	createTriangle(particles[0]);
 	for (var i=0; i<particles[0].length; i++) { 
 		createSphere(particles[0][i][0], particles[0][i][1], color); 
 	}
 	//}
 }
 //}}}
-function lerp(a, b, t) {return a + (b - a) * t}
-    
-// example easing function (quadInOut, see link above)
-function ease(t) { return t<0.5 ? 2*t*t : -1+(4-2*t)*t}
-
-
