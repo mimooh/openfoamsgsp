@@ -1,9 +1,7 @@
 from collections import OrderedDict
 import math
 from copy import deepcopy
-#from math import sqrt, sin, cos, asin, acos, atan, pi, degrees
 from numpy.random import randint
-import matplotlib.pyplot as plt
 import inspect
 import itertools
 import json
@@ -67,6 +65,7 @@ class Gen:
         #self.plot_rings()
 # }}}
     def plot_rings(self):# {{{
+        import matplotlib.pyplot as plt
         dots=[ [], [] ]
         for r,v in self.rings.items():
             for i in v:
