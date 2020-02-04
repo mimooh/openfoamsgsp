@@ -72,9 +72,8 @@ function loop() {//{{{
 	}
 	alpha = 1 / LS--; // 1/5, 1/4, 1/3, 1/2, 1/1
     for (var i=0; i<spheres.length; i++) {
-		spheres[i].position.lerp(new THREE.Vector3(particles[frame][i][0], particles[frame][i][1], 0 ), alpha);
+		spheres[i].position.lerp(new THREE.Vector3(particles[frame][i][0], particles[frame][i][1], particles[frame][i][2] ), alpha);
     }
-	console.log(spheres[0].position.x, particles[frame][0][0], frame, Math.round(100 * alpha)/100);
 
 	requestAnimationFrame(loop);
 	controls.update();
