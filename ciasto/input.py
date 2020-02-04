@@ -80,7 +80,7 @@ class Gen:
     def make_polygon(self,radius):# {{{
         sides=22 + radius*10
         one_segment = math.pi * 2 / sides
-        points = [ (math.sin(one_segment * i) * (1+0.1 * radius), math.cos(one_segment * i) * (1+0.1 * radius), uniform(0,1)) for i in range(sides)]
+        points = [ (math.sin(one_segment * i) * (1+0.1 * radius), math.cos(one_segment * i) * (1+0.1 * radius), uniform(0.4,0.6)) for i in range(sides)]
         return points
 # }}}
     def ring_frames(self):# {{{

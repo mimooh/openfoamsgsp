@@ -8,6 +8,7 @@ import json
 import numpy as np
 import os
 import sys
+from numpy.random import uniform
 
 class Dump:# {{{
     def __init__(self,*args):
@@ -57,54 +58,36 @@ class Json: # {{{
 
 class Gen:
     def __init__(self):# {{{
-        self.rings={}
-        self.num_frames=100
-        for r in range(1,6):
-            self.rings[r]=self.make_polygon(r)
-        self.ring_frames()
-        #self.plot_rings()
-# }}}
-    def plot_rings(self):# {{{
-        import matplotlib.pyplot as plt
-        dots=[ [], [] ]
-        for r,v in self.rings.items():
-            for i in v:
-                dots[0].append(i[0])
-                dots[1].append(i[1])
-        plt.scatter(dots[0], dots[1])
-        plt.show()
-        
+        self.len_frames=100
+        self.frames=[ [] for i in range(self.len_frames) ]
+        for r in range(1,2):
+            self.frames[0]+=self.make_polygon(r)
+        self.add_frames()
 # }}}
     def make_polygon(self,radius):# {{{
         sides=22 + radius*10
+        #sides=5
         one_segment = math.pi * 2 / sides
-        points = [ (math.sin(one_segment * i) * (1+0.1 * radius), math.cos(one_segment * i) * (1+0.1 * radius), 0) for i in range(sides)]
+        points = [ { 'x': math.sin(one_segment * i) * (1+0.1 * radius), 'y': math.cos(one_segment * i) * (1+0.1 * radius), 'z': 0 } for i in range(sides)]
         return points
 # }}}
-    def ring_frames(self):# {{{
-        self.frames=[]
-        for frame in range(1,self.num_frames):
-            frame_record={}
-            for r in self.rings.keys(): 
-                try:
-                    new=deepcopy(self.frames[frame-2][r])
-                except:
-                    new=deepcopy(self.rings[r])
-                first=new.pop(0)
-                new.append(first)
-                frame_record[r]=new
-            self.frames.append(frame_record)
-
-        flat=[]
-        for f in self.frames:
-            record=[]
-            for m,n in f.items():
-                record+=n
-            flat.append(record)
-
-        #flat=[ [(0,0) ], [(2,0) ], [(4,0) ], [(6,0) ] ]
-        
-        j.write(flat, "ciasto.json")
+    def add_frames(self):# {{{
+        # TODO: need to generate next data and read it
+        for i,frame in enumerate(self.frames[:-1]):
+            print(i)
+            t = i / self.len_frames
+            for p in frame:
+                # new.append(
+                #     ( 
+                #         (-x * (y**2 + z**2)**0.5) / (t*(x**2 + y**2 + z**2)**0.5),
+                #         ( y * (x**2 + z**2)**0.5) / (t*(x**2 + y**2 + z**2)**0.5),
+                #         0
+                #     )
+                # )
+                print(i+1)
+                self.frames[i+1].append((p['x']+i/10, p['y']+0.1*math.sin(i), p['z']))
+            print(self.frames)
+        j.write(self.frames, "ciasto.json")
     # }}}
         
 # }}}
