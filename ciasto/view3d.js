@@ -1,6 +1,6 @@
 var scene, camera, renderer, controls, fireMesh, rings, particles, spheres=[], frame=1, alpha=0, paused=0;
 
-var SPEED = 0.001;
+var SPEED = 0.01;
 var WIDTH  = window.innerWidth;
 var HEIGHT = window.innerHeight;
 $(function()  { view3d(); });

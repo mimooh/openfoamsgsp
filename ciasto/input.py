@@ -106,6 +106,13 @@ class Gen:
                 record+=n
             flat.append(record)
 
+        flat=[
+            [(0,0) ],
+            [(2,0) ],
+            [(4,0) ],
+            [(6,0) ]
+        ]
+        
         j.write(flat, "ciasto.json")
     # }}}
         
