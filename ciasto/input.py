@@ -60,8 +60,8 @@ class Json: # {{{
 class Gen:
     def __init__(self):# {{{
         self.rings={}
-        self.num_frames=10
-        for r in range(1,2):
+        self.num_frames=100
+        for r in range(1,6):
             self.rings[r]=self.make_polygon(r)
         self.ring_frames()
         #self.plot_rings()
@@ -77,11 +77,11 @@ class Gen:
         
 # }}}
     def make_polygon(self,radius):# {{{
-        sides=radius*4
+        sides=22 + radius*10
         one_segment = math.pi * 2 / sides
         points = [
-            (math.sin(one_segment * i) * radius,
-             math.cos(one_segment * i) * radius)
+            (math.sin(one_segment * i) * (1+0.1 * radius),
+             math.cos(one_segment * i) * (1+0.1 * radius))
             for i in range(sides)]
         return points
 # }}}
@@ -106,12 +106,7 @@ class Gen:
                 record+=n
             flat.append(record)
 
-        flat=[
-            [(0,0) ],
-            [(2,0) ],
-            [(4,0) ],
-            [(6,0) ]
-        ]
+        #flat=[ [(0,0) ], [(2,0) ], [(4,0) ], [(6,0) ] ]
         
         j.write(flat, "ciasto.json")
     # }}}
