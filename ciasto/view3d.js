@@ -1,6 +1,6 @@
-var scene, camera, renderer, controls, fireMesh, rings, particles, spheres=[], frame=1, paused=0;
+var scene, camera, renderer, controls, fireMesh, rings, particles, spheres=[], frame=1, alpha=0, paused=0;
 
-var SPEED = 0.01;
+var SPEED = 0.001;
 var WIDTH  = window.innerWidth;
 var HEIGHT = window.innerHeight;
 $(function()  { view3d(); });
@@ -25,10 +25,13 @@ function createScene() { //{{{
     camera.lookAt(scene.position);
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	scene.add(new THREE.AxesHelper());
+	var grid = new THREE.GridHelper(100, 100, 100);
+	grid.geometry.rotateX( Math.PI / 2 );
+	scene.add(grid);
 }
 //}}}
-function createTriangle(points) {//{{{
-	var material = new THREE.LineBasicMaterial({ color: 0xaaaaaa });
+function createPoly(points) {//{{{
+	var material = new THREE.LineBasicMaterial({ color: 0x555555});
 
 	var geometry = new THREE.Geometry();
 	for (var i=0; i<points.length; i++) {
@@ -63,21 +66,29 @@ function view3d() {//{{{
 //}}}
 function loop() {//{{{
     if(paused==1) { return; }
-
+	alpha+=SPEED;
+	if(alpha >= 1) { 
+		alpha=0;
+		if(frame<particles.length-2) { frame++; } else { frame=1; }
+	}
     for (var i=0; i<spheres.length; i++) {
-		spheres[i].position.lerp(new THREE.Vector3(particles[1][i][0], particles[1][i][1], 0 ), 0.1);
+		spheres[i].position.lerp(new THREE.Vector3(particles[frame][i][0], particles[frame][i][1], 0 ), alpha);
     }
-    if(frame<particles.length-2) { frame++; } else { frame=1; }
+	console.log(spheres[0].position.x, particles[frame][0][0], frame, Math.round(100 * alpha)/100);
+
 	requestAnimationFrame(loop);
 	controls.update();
 	renderer.render( scene, camera );
 }
 //}}}
 function createMeshes() {//{{{
-	var color = new THREE.Color( 0xffffff );
-	color=color.setHex( Math.random() * 0xffffff );
-	createTriangle(particles[0]);
-	for (var i=0; i<particles[0].length; i++) { 
+	//var color = new THREE.Color( 0xffffff );
+	//color=color.setHex( Math.random() * 0xffffff );
+	color=0xaa2288;
+	createPoly(particles[0]);
+
+	createSphere(particles[0][0][0], particles[0][0][1], 0xff8800); 
+	for (var i=1; i<particles[0].length; i++) { 
 		createSphere(particles[0][i][0], particles[0][i][1], color); 
 	}
 	//}

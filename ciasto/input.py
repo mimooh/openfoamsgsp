@@ -61,7 +61,7 @@ class Gen:
     def __init__(self):# {{{
         self.rings={}
         self.num_frames=10
-        for r in range(1,4):
+        for r in range(1,2):
             self.rings[r]=self.make_polygon(r)
         self.ring_frames()
         #self.plot_rings()
@@ -77,7 +77,7 @@ class Gen:
         
 # }}}
     def make_polygon(self,radius):# {{{
-        sides=radius*30
+        sides=radius*4
         one_segment = math.pi * 2 / sides
         points = [
             (math.sin(one_segment * i) * radius,
