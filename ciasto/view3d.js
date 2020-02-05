@@ -72,7 +72,7 @@ function loop() {//{{{
 	}
 	alpha = 1 / LS--; // 1/5, 1/4, 1/3, 1/2, 1/1
     for (var i=0; i<spheres.length; i++) {
-		spheres[i].position.lerp(new THREE.Vector3(particles[frame][i][0], particles[frame][i][1], particles[frame][i][2] ), alpha);
+		spheres[i].position.lerp(new THREE.Vector3(particles[frame][i]['x'], particles[frame][i]['y'], particles[frame][i]['z'] ), alpha);
     }
 
 	requestAnimationFrame(loop);
@@ -86,9 +86,9 @@ function createMeshes() {//{{{
 	color=0xaa2288;
 	//createPoly(particles[0]);
 
-	createSphere(particles[0][0][0], particles[0][0][1], 0xff8800); 
+	createSphere(particles[0][0]['x'], particles[0][0]['y'], 0xff8800); 
 	for (var i=1; i<particles[0].length; i++) { 
-		createSphere(particles[0][i][0], particles[0][i][1], color); 
+		createSphere(particles[0][i]['x'], particles[0][i]['y'], color); 
 	}
 	//}
 }

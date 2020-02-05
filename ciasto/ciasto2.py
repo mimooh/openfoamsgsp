@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import math
+from math import sin, cos
 from copy import deepcopy
 from numpy.random import randint
 import inspect
@@ -59,36 +60,63 @@ class Json: # {{{
 class Gen:
     def __init__(self):# {{{
         self.len_frames=100
-        self.frames=[ [] for i in range(self.len_frames) ]
-        for r in range(1,2):
-            self.frames[0]+=self.make_polygon(r)
+        self.init_frame0()
+        #self.plot();
         self.add_frames()
 # }}}
-    def make_polygon(self,radius):# {{{
-        sides=22 + radius*10
-        #sides=5
-        one_segment = math.pi * 2 / sides
-        points = [ { 'x': math.sin(one_segment * i) * (1+0.1 * radius), 'y': math.cos(one_segment * i) * (1+0.1 * radius), 'z': 0 } for i in range(sides)]
-        return points
+    def plot(self):# {{{
+        import matplotlib.pyplot as plt
+        dots=[ [], [] ]
+        for p in self.frame0:
+            dots[0].append(p['x'])
+            dots[1].append(p['y'])
+        plt.scatter(dots[0], dots[1])
+        plt.show()
+        
+# }}}
+    def init_frame0(self):# {{{
+        self.frame0=[]
+        r=1
+        for i in range(500):
+            x=uniform(-r,r)
+            y=uniform(-r,r)
+            if((x**2 + y**2)**0.5 < r ):
+                self.frame0.append({ 'x': x, 'y': y, 'z': uniform(-0.3,0.3) })
 # }}}
     def add_frames(self):# {{{
-        # TODO: need to generate next data and read it
-        for i,frame in enumerate(self.frames[:-1]):
-            print(i)
-            t = i / self.len_frames
-            for p in frame:
+        t=2
+        dt=0.05
+        out=[]
+        current=self.frame0
+        for i in range(self.len_frames):
+            new=[]
+            for p in current:
+                x,y,z=p['x'], p['y'], p['z']
+                new.append(
+                {
+                    'x': x + -y * dt  / ( 0.5*t * (x**2 + y**2)**0.9) ,
+                    'y': y +  x * dt  / ( 0.5*t * (x**2 + y**2)**0.9) ,
+                    'z': uniform(0.1,0.2)
+                })
+
                 # new.append(
-                #     ( 
-                #         (-x * (y**2 + z**2)**0.5) / (t*(x**2 + y**2 + z**2)**0.5),
-                #         ( y * (x**2 + z**2)**0.5) / (t*(x**2 + y**2 + z**2)**0.5),
-                #         0
-                #     )
-                # )
-                print(i+1)
-                self.frames[i+1].append((p['x']+i/10, p['y']+0.1*math.sin(i), p['z']))
-            print(self.frames)
-        j.write(self.frames, "ciasto.json")
+                # {
+                #     'x': (-x * (y**2 + z**2)**0.5) / (t*(x**2 + y**2 + z**2)**0.5) ,
+                #     'y': ( y * (x**2 + z**2)**0.5) / (t*(x**2 + y**2 + z**2)**0.5) , 
+                #     'z': 0
+                # })
+                # new.append(
+                #  {
+                #      'x': x+dt,
+                #      'y': math.sin(2*x),
+                #      'z': 0
+                #  })
+            current=new
+            out.append(current)
+            t+=dt
+        j.write(out, "ciasto.json")
     # }}}
+
         
 # }}}
 
