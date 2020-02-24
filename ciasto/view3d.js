@@ -1,6 +1,6 @@
 var scene, camera, renderer, controls, fireMesh, rings, particles, spheres=[], frame=1, alpha=0, paused=0;
 
-var LERP_STEPS = LS = 10;
+var LERP_STEPS = LS = 30;
 var WIDTH  = window.innerWidth;
 var HEIGHT = window.innerHeight;
 $(function()  { view3d(); });
@@ -45,11 +45,22 @@ function createPoly(points) {//{{{
 function createSphere(x,y,color) {//{{{
 	var geometry = new THREE.SphereGeometry(0.03, 20, 20 );
 	var material = new THREE.MeshBasicMaterial( {color: color } );
-	var sphere = new THREE.Mesh( geometry, material );
+	var sphere   = new THREE.Mesh( geometry, material );
 	sphere.position.x=x;
 	sphere.position.y=y;
 	sphere.position.z=0;
 	spheres.push(sphere);
+	scene.add(sphere);
+}
+//}}}
+function createStaticSphere(x,y,r) {//{{{
+
+    var geometry = new THREE.CircleGeometry(r, 100 );
+	var material = new THREE.MeshBasicMaterial( {color: 0xdddddd, opacity: 0.1, transparent: 1 } );
+    var sphere = new THREE.Mesh( geometry, material );
+	sphere.position.x=x;
+	sphere.position.y=y;
+	sphere.position.z=0;
 	scene.add(sphere);
 }
 //}}}
@@ -59,6 +70,7 @@ function view3d() {//{{{
 		particles=dots;
 		createScene();
 		createMeshes(); 
+		createStaticSphere(0,0,2); 
 		loop();
 	});
 }
@@ -84,12 +96,10 @@ function createMeshes() {//{{{
 	//var color = new THREE.Color( 0xffffff );
 	//color=color.setHex( Math.random() * 0xffffff );
 	color=0xaa2288;
-	//createPoly(particles[0]);
-
 	createSphere(particles[0][0]['x'], particles[0][0]['y'], 0xff8800); 
-	for (var i=1; i<particles[0].length; i++) { 
-		createSphere(particles[0][i]['x'], particles[0][i]['y'], color); 
-	}
+	//for (var i=1; i<particles[0].length; i++) { 
+	//	createSphere(particles[0][i]['x'], particles[0][i]['y'], color); 
+	//}
 	//}
 }
 //}}}
