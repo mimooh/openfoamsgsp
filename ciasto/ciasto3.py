@@ -86,7 +86,7 @@ class Gen:
 
     def add_frames(self):# {{{
         t=0
-        dt=math.pi/2.05
+        dt=0.1
         out=[]
         current=self.frame0
         for i in range(self.len_frames):
@@ -94,9 +94,14 @@ class Gen:
             for p in current:
                 x,y,z=p['x'], p['y'], p['z']
                 new.append(
+                # {
+                #     'x': (scipy.integrate.quad(lambda t:cos(t)*self.radius, 0, t)[0]),
+                #     'y': (scipy.integrate.quad(lambda t:sin(t)*self.radius, 0, t)[0] - self.radius),
+                #     'z': 0
+                # }
                 {
-                    'x': scipy.integrate.quad(lambda t:cos(0.5*t), 0, t)[0],
-                    'y': scipy.integrate.quad(lambda t:sin(0.5*t), 0, t)[0] - self.radius ,
+                    'x': cos(5*t)*self.radius,
+                    'y': sin(5*t)*self.radius,
                     'z': 0
                 }
                 
